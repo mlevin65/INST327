@@ -1,0 +1,83 @@
+USE ev_db;
+/*query 1 New_Teslas_in_King_County*/
+-- Teslas in King County with the earliest manufacturing year
+SELECT l.County, l.City, l.State, l.Postal_Code, Model_Year, vm.Make, Model, vd.Electric_Vehicle_Type
+FROM vehicle_specifications
+    JOIN vehicle_details vd USING (Specification_ID)
+    JOIN vehicle_maker vm USING (Maker_ID)
+    JOIN location l USING (Location_ID)
+WHERE vm.Make = 'TESLA' AND l.County = 'King' AND Model_Year = (
+    SELECT MAX(Model_Year)
+    FROM vehicle_specifications
+        JOIN vehicle_details USING (Specification_ID)
+        JOIN vehicle_maker USING (Maker_ID)
+        JOIN location USING (Location_ID)
+    WHERE vehicle_maker.Make = 'TESLA' AND location.County = 'King'
+)
+GROUP BY l.County, l.City, l.State, l.Postal_Code, Model_Year, vm.Make, Model, vd.Electric_Vehicle_Type;
+
+
+SELECT * FROM New_Teslas_in_King_County;
+/*query 2 company_vehicles_eligibility_per_county*/
+
+SELECT DOL_vehicle_id, Make, CAFV_eligibility, county
+FROM vehicle_details
+JOIN fuel_eligibility USING(CAFV_ID)
+JOIN location USING(location_id)
+JOIN vehicle_maker USING(Maker_ID)
+WHERE CAFV_ID= 2
+ORDER BY county;
+
+SELECT * FROM company_vehicles_eligibility_per_county;
+
+
+/*query 3 num_cars_avg_range_seattle*/
+SELECT
+    d.Electric_Vehicle_Type,
+    l.city,
+    COUNT(DISTINCT vm.Maker_ID) AS total_cars,
+    AVG(d.Electric_Range) AS avg_range
+FROM
+    vehicle_maker vm
+JOIN
+    vehicle_details d USING (Maker_ID)
+JOIN
+    location l USING (Location_ID)
+WHERE
+    l.City = 'Seattle'
+GROUP BY
+    d.Electric_Vehicle_Type, l.city;
+
+
+SELECT * FROM num_cars_avg_range_seattle;
+
+/*query 4 ev_range_over_100*/
+
+SELECT DOL_Vehicle_ID, Electric_Range, Electric_Vehicle_Type, Make, CAFV_Eligibility
+FROM vehicle_details
+JOIN vehicle_maker USING (Maker_ID)
+JOIN fuel_eligibility USING (CAFV_ID)
+GROUP BY DOL_Vehicle_ID, Electric_Range, Electric_Vehicle_Type, Make, CAFV_Eligibility
+HAVING Electric_Range > 100
+ORDER BY Electric_Range DESC;
+
+
+SELECT * FROM ev_range_over_100;
+
+/*query 5 Electric_vehicle_based_on_Utility_Company*/
+
+SELECT Electric_Utility, Electric_Range, Electric_Vehicle_Type
+FROM (SELECT
+Electric_Utility, Electric_Range, Electric_Vehicle_Type
+FROM Vehicle_details AS vd
+JOIN utility_linking AS ul
+USING(DOL_Vehicle_ID)
+JOIN utility
+USING(Utility_ID)
+
+GROUP BY Electric_Utility, Census_Tract, Electric_Range, Electric_Vehicle_Type) AS sub
+WHERE Electric_Utility= 'PUGET SOUND ENERGY INC'
+
+ORDER BY Electric_Range DESC;
+
+SELECT * FROM Electric_vehicle_based_on_Utility_Company;

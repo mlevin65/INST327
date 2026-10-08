@@ -1,0 +1,2 @@
+
+I used a subquery for this assignment because I knew that I only needed to specifically use it once in the join statement for the unique_course_start_times. I remember from the lecture that we should use CTE's like a function that we could call multiple times through a singular or multiple queries. So, the main reason why I chose to write a subquery over CTE was because I thought it was most convenient for this assignment. If I needed to write multiple subqueries that were similar, I would instead use a CTE method and reference it as needed. 

@@ -1,0 +1,1 @@
+The aggregate function COUNT(*) in the SELECT statement makes this view non-updatable. Since aggregate functions summarize data from several rows, they are usually not updateable, leaving it uncertain to update individual rows via the view. 
